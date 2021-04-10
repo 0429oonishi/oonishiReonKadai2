@@ -29,10 +29,8 @@ final class ViewController: UIViewController {
 
     @IBAction private func calculateButtonDidTapped(_ sender: Any) {
         guard
-            let firstText = firstTextField.text,
-            let firstNum = Double(firstText),
-            let secondText = secondTextField.text,
-            let secondNum = Double(secondText)
+            let firstNum = firstTextField.text.flatMap({ Double($0) }),
+            let secondNum = secondTextField.text.flatMap({ Double($0) })
         else {
             resultLabel.text = ErrorMessage.nonNumeric
             return
