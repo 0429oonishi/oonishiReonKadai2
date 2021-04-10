@@ -40,9 +40,6 @@
                                     <segment title="×"/>
                                     <segment title="÷"/>
                                 </segments>
-                                <connections>
-                                    <action selector="segmentedControlDidTapped:" destination="BYZ-38-t0r" eventType="valueChanged" id="6xQ-yc-z6l"/>
-                                </connections>
                             </segmentedControl>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0dA-wF-avt">
                                 <rect key="frame" x="166" y="355" width="82" height="36"/>
@@ -85,6 +82,7 @@
                         <outlet property="firstTextField" destination="h8K-A4-RfQ" id="zPK-tb-tko"/>
                         <outlet property="resultLabel" destination="TYE-c2-sUu" id="NHb-WM-8vS"/>
                         <outlet property="secondTextField" destination="WJq-dn-Gnm" id="gFw-EF-8R7"/>
+                        <outlet property="segmentedControl" destination="cXc-cG-XrY" id="kfw-Rn-zCa"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
