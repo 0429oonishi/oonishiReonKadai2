@@ -7,11 +7,30 @@
 
 import UIKit
 
+private enum CalculationResult {
+    case success(Double)
+    case failure(String)
+}
+
 private enum Calculation: Int {
     case addition
     case subtraction
     case multiplication
     case division
+
+    func calculate(_ num1: Double, _ num2: Double) -> CalculationResult {
+        switch self {
+        case .addition:
+            return .success(num1 + num2)
+        case .subtraction:
+            return .success(num1 - num2)
+        case .multiplication:
+            return .success(num1 * num2)
+        case .division:
+            guard num2 != 0 else { return .failure(ErrorMessage.divideBy0) }
+            return .success(num1 / num2)
+        }
+    }
 }
 
 private enum ErrorMessage {
@@ -28,36 +47,26 @@ final class ViewController: UIViewController {
     @IBOutlet private weak var segmentedControl: UISegmentedControl!
 
     @IBAction private func calculateButtonDidTapped(_ sender: Any) {
-        guard
-            let firstNum = firstTextField.text.flatMap({ Double($0) }),
-            let secondNum = secondTextField.text.flatMap({ Double($0) })
-        else {
+        guard let firstNum = firstTextField.text.flatMap({ Double($0) }),
+              let secondNum = secondTextField.text.flatMap({ Double($0) }) else {
+
             resultLabel.text = ErrorMessage.nonNumeric
             return
         }
 
-        guard
-            let calculatedNum = calculateNum(firstNum, secondNum)
-        else {
-            resultLabel.text = ErrorMessage.divideBy0
-            return
+        switch calculateNum(firstNum, secondNum) {
+        case let .success(result):
+            resultLabel.text = String(result)
+        case let .failure(message):
+            resultLabel.text = message
         }
-
-        resultLabel.text = String(calculatedNum)
     }
     
-    private func calculateNum(_ firstNum: Double, _ secondNum: Double) -> Double? {
+    private func calculateNum(_ firstNum: Double, _ secondNum: Double) -> CalculationResult {
         guard let calculation = Calculation(rawValue: segmentedControl.selectedSegmentIndex) else {
             fatalError(ErrorMessage.invalidSegment)
         }
 
-        switch calculation {
-        case .addition: return firstNum + secondNum
-        case .subtraction: return firstNum - secondNum
-        case .multiplication: return firstNum * secondNum
-        case .division:
-            guard !secondNum.isZero else { return nil }
-            return firstNum / secondNum
-        }
+        return calculation.calculate(firstNum, secondNum)
     }
 }
