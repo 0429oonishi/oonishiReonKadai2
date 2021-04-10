@@ -51,21 +51,15 @@ final class ViewController: UIViewController {
             self.resultLabel.text = ErrorMessage.nonNumeric
             return
         }
-        switch calculateNum(firstNum, secondNum) {
-        case let .success(result):
+        guard let calculation = Calculation(rawValue: segmentedControl.selectedSegmentIndex) else {
+            fatalError(ErrorMessage.invalidSegment)
+        }
+        switch calculation.calculate(firstNum, secondNum) {
+        case .success(let result):
             resultLabel.text = String(result)
-        case let .failure(message):
+        case .failure(let message):
             resultLabel.text = message
         }
     }
     
-    private func calculateNum(_ firstNum: Double, _ secondNum: Double) -> CalculationResult {
-        guard let calculation = Calculation(rawValue: segmentedControl.selectedSegmentIndex) else {
-            fatalError(ErrorMessage.invalidSegment)
-        }
-        return calculation.calculate(firstNum, secondNum)
-    }
-    
 }
-
-
