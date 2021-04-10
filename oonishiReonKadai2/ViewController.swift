@@ -7,72 +7,63 @@
 
 import UIKit
 
-enum Calculation: Int {
-    case addition
-    case subtraction
-    case multiplication
-    case division
-}
-
-enum ErrorType {
-    case invalidSegment
-    case nonNumeric
-    case divideBy0
-    var text: String {
-        switch self {
-        case .invalidSegment: return "予期しないセグメントが選択されました。"
-        case .nonNumeric: return "数値を入力してください。"
-        case .divideBy0: return "割る数には0以外を選択してください。"
+final class ViewController: UIViewController {
+    
+    private enum CalculationResult {
+        case success(Double)
+        case failure(String)
+    }
+    
+    private enum Calculation: Int {
+        case addition
+        case subtraction
+        case multiplication
+        case division
+        func calculate(_ num1: Double, _ num2: Double) -> CalculationResult {
+            switch self {
+            case .addition:
+                return .success(num1 + num2)
+            case .subtraction:
+                return .success(num1 - num2)
+            case .multiplication:
+                return .success(num1 * num2)
+            case .division:
+                guard !num2.isZero else { return .failure(ErrorMessage.divideBy0) }
+                return .success(num1 / num2)
+            }
         }
     }
-}
-
-final class ViewController: UIViewController {
+    
+    private enum ErrorMessage {
+        static let invalidSegment = "予期しないセグメントが選択されました。"
+        static let nonNumeric = "数値を入力してください。"
+        static let divideBy0 = "割る数には0以外を選択してください。"
+    }
     
     @IBOutlet private weak var firstTextField: UITextField!
     @IBOutlet private weak var secondTextField: UITextField!
     @IBOutlet private weak var resultLabel: UILabel!
-    private var calculation: Calculation = .addition
-    
-    @IBAction private func segmentedControlDidTapped(_ sender: UISegmentedControl) {
-        if let calculation = Calculation(rawValue: sender.selectedSegmentIndex) {
-            self.calculation = calculation
-        } else {
-            fatalError(ErrorType.invalidSegment.text)
-        }
-    }
+    @IBOutlet private weak var segmentedControl: UISegmentedControl!
     
     @IBAction private func calculateButtonDidTapped(_ sender: Any) {
-        guard
-            let firstText = firstTextField.text,
-            let firstNum = Double(firstText),
-            let secondText = secondTextField.text,
-            let secondNum = Double(secondText)
-        else {
-            resultLabel.text = ErrorType.nonNumeric.text
+        guard let firstNum = firstTextField.text.flatMap({ Double($0) }),
+              let secondNum = secondTextField.text.flatMap({ Double($0) }) else {
+            self.resultLabel.text = ErrorMessage.nonNumeric
             return
         }
-        guard
-            let calculatedNum = calculateNum(firstNum, secondNum)
-        else {
-            resultLabel.text = ErrorType.divideBy0.text
-            return
+        switch calculateNum(firstNum, secondNum) {
+        case let .success(result):
+            resultLabel.text = String(result)
+        case let .failure(message):
+            resultLabel.text = message
         }
-        resultLabel.text = String(calculatedNum)
     }
     
-    private func calculateNum(_ firstNum: Double, _ secondNum: Double) -> Double? {
-        switch calculation {
-        case .addition: return firstNum + secondNum
-        case .subtraction: return firstNum - secondNum
-        case .multiplication: return firstNum * secondNum
-        case .division:
-            if secondNum.isZero {
-                return nil
-            } else {
-                return firstNum / secondNum
-            }
+    private func calculateNum(_ firstNum: Double, _ secondNum: Double) -> CalculationResult {
+        guard let calculation = Calculation(rawValue: segmentedControl.selectedSegmentIndex) else {
+            fatalError(ErrorMessage.invalidSegment)
         }
+        return calculation.calculate(firstNum, secondNum)
     }
     
 }
